@@ -6,7 +6,7 @@
 
 # ISA Status
 
-- [ ] Core Primitive
+- [x] Core Primitive
   - [x] subleq
 - [ ] Arithmetic
   - [x] add
