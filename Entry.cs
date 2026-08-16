@@ -23,6 +23,7 @@ namespace OneInsArch
 
             string output = null!;
             string input = null!;
+            string? monitorLabel = null;
             bool fileless = false;
             bool runAfter = false;
             bool readSignatureAndExit = false;
@@ -35,6 +36,8 @@ namespace OneInsArch
             byte bitsInWord = Signature.CurrentSignature.WordSize;
             byte bitsInAddress = 0;
             int memoryCapacity = VirtualMachineInit.DefaultMemoryCapacity;
+            long monitorByte = -1;
+            int debugExitCode = -1;
             Type wordType;
             Type addressType;
 
@@ -72,6 +75,18 @@ namespace OneInsArch
                     case "--run":
                     case "-r":
                         runAfter = true;
+                        break;
+                    case "--debug-exit-code":
+                        if (!(i + 1 < args.Length && int.TryParse(args[++i], out debugExitCode)))
+                        {
+                            IO.ArgumentError($"Invalid or missing argument after \"{arg}\".");
+                        }
+                        break;
+                    case "--debug-monitor":
+                        if (i + 1 >= args.Length) IO.ArgumentError($"Missing argument after \"{arg}\".");
+                        string monitorArgument  = args[++i];
+                        if (!long.TryParse(monitorArgument, out monitorByte))
+                            monitorLabel = monitorArgument;
                         break;
                     case "--read-debug":
                         readDebugInfoAndExit = true;
@@ -160,7 +175,7 @@ namespace OneInsArch
 
             if (readSignatureAndExit)
             {
-                IO.Print($"Compiler Signature:" + Signature.CurrentSignature.AsJson());
+                IO.Print($"Compiler Signature: " + Signature.CurrentSignature.AsJson());
 
                 if (string.IsNullOrEmpty(input))
                     IO.Print("No input file provided.");
@@ -181,7 +196,7 @@ namespace OneInsArch
             if (readDebugInfoAndExit)
             {
                 if (string.IsNullOrEmpty(input))
-                    IO.Print("No input file provided.");
+                    IO.ArgumentError("No input file provided.");
                 else
                 {
                     byte[] programImage = File.ReadAllBytes(input);
@@ -194,11 +209,9 @@ namespace OneInsArch
                     }
                     catch
                     {
-                        IO.Print("Debug information is missing or invalid.");
+                        IO.ArgumentError("Debug information is missing or invalid.");
                     }
                 }
-                
-                IO.Exit();
             }
 
             if (printInfoAndExit)
@@ -267,7 +280,7 @@ namespace OneInsArch
                             bool signatureIsValid = true;
                             try
                             {
-                                VirtualMachineInit.RunInVirtualMachine(
+                                RunInVirtualMachine(
                                     BitTypes.GetSignedTypeByWidth(wordSize),
                                     BitTypes.GetUnsignedTypeByWidth(addressingMode),
                                     binary,
@@ -310,15 +323,21 @@ namespace OneInsArch
                         (bitsInWord, bitsInAddress) = Signature.CheckSignature(binary);
                     addressType = GetAddressingType();
                     wordType = BitTypes.GetSignedTypeByWidth(bitsInWord);
-                    VirtualMachineInit.RunInVirtualMachine(wordType, addressType, binary, memoryCapacity);
+                    RunInVirtualMachine(
+                        wordType,
+                        addressType,
+                        binary,
+                        memoryCapacity,
+                        monitorByte: monitorByte,
+                        debugExitCode: debugExitCode);
                     IO.Exit(0);
                 }
 
                 text = Encoding.UTF8.GetString(binary);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                IO.ArgumentError($"Unable to read file: {e.Message}");
+                IO.ArgumentError($"Unable to read file.\n{ex}");
             }
 
             wordType = BitTypes.GetSignedTypeByWidth(bitsInWord);
@@ -334,7 +353,13 @@ namespace OneInsArch
                 File.WriteAllBytes(output, binaryImage);
 
             if (runAfter)
-                VirtualMachineInit.RunInVirtualMachine(wordType, addressType, binaryImage, memoryCapacity);
+                RunInVirtualMachine(
+                    wordType,
+                    addressType,
+                    binaryImage,
+                    memoryCapacity,
+                    monitorByte: monitorByte,
+                    debugExitCode: debugExitCode);
 
             IO.Exit();
 
@@ -345,6 +370,43 @@ namespace OneInsArch
                     : BitTypes.GetUnsignedTypeByWidth(bitsInAddress);
                 IO.Log($"Set addressing type to {addressType.Name} from input of {bitsInAddress} bits", null);
                 return addressType;
+            }
+
+            void RunInVirtualMachine(
+                Type wordType,
+                Type addressType,
+                byte[] binaryImage,
+                int memoryCapacity,
+                bool disableInterrupts = false,
+                TimeSpan? timeout = null,
+                long? monitorByte = null,
+                int? debugExitCode = null)
+            {
+                if (monitorLabel != null)
+                {
+                    if (string.IsNullOrEmpty(input))
+                        IO.ArgumentError("No input file provided.");
+                    else
+                    {
+                        try
+                        {
+                            Label[] definedLabels = DebugInfo.DecodeDebugInfoFromImage(binaryImage);
+                            monitorByte = definedLabels.FirstOrDefault(label => label.Name == monitorLabel).Offset;
+                        }
+                        catch (Exception ex)
+                        {
+                            IO.ArgumentError($"Debug information is missing or invalid.\n({ex})");
+                        }
+                    }
+                }
+                
+                VirtualMachineInit.RunInVirtualMachine(
+                    wordType,
+                    addressType,
+                    binaryImage,
+                    memoryCapacity,
+                    monitorByte: monitorByte,
+                    debugExitCode: debugExitCode);
             }
 
             // VirtualMachine vm = new();

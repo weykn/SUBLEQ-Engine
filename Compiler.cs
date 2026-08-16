@@ -40,7 +40,7 @@ namespace OneInsArch
         {
             IO.Log($"DEFAULT WORD SIZE IS {SignedSize * 8} BITS ({typeof(TSigned).Name})", null);
 
-            text += "$:\n@:\n$t: dws 0\n$e: dws 0\n$r: dws 0\n$ret: das 0\n";
+            text += "\n$:\n@:\n$t: dws 0\n$e: dws 0\n$r: dws 0\n$ret: das 0\n";
 
             List<sbyte> image = [];
             int bytesPlaced = 0;
@@ -208,6 +208,14 @@ namespace OneInsArch
                         case var s when Helper.StartsWith(s, "sub"):
                             string[] subParameters = GetParameters(s, 2);
                             PutSubleq(subParameters[1], subParameters[0], "@");
+                            break;
+                        case var s when Helper.StartsWith(s, "inc"):
+                            string[] incParameters = GetParameters(s, 1);
+                            EmitAddC(incParameters[0], "1");
+                            break;
+                        case var s when Helper.StartsWith(s, "dec"):
+                            string[] decParameters = GetParameters(s, 1);
+                            EmitAddC(decParameters[0], "-1");
                             break;
 
                         // Control Flow

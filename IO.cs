@@ -74,35 +74,37 @@ namespace OneInsArch
         public static void ShowHelp()
         {
             Print($@"Usage: {Signature.GetFileName()} [options] <input file>
-
-General Options:
-  -h, --help                Show this help message and exit. 
-  -v, --version             Display version information.
-
-Compiler Options:
-  -o, --output <file>       Specify the output file name.
-  -w, --word <bits>         Specify the default word size in bits (default: {Signature.CurrentSignature.WordSize}).
-  -f, --fileless            Compile and run without writing an output file.
-      --address <bits>      Force addressing size in bits.
-      --speed-up            Faster compilation, higher memory usage.
-      --flow-protection     Prevent return-hijacking via shadow stack.
-
-Virtual Machine Options:
-  -m, --memory <bytes>      Set virtual machine memory capacity in bytes (default: {VirtualMachineInit.DefaultMemoryCapacity}).
-  -r, --run                 Run program in virtual machine.
-
-Binary Options:
-  -i, --info                Display information about the binary and exit.
-
-Debug/Developer Options:
-  -g, --debug               Include debug symbols in the generated binary.
-      --verbose             Enable verbose logging.
-      --try-sign            Attempt to find a signature to an unsigned file.
-      --no-signature        Do not append the signature/metadata.
-      --read-signature      Print signature information and exit.
-      --ignore-signature    Ignore binary signature when loading.
-      --read-debug          Display debug symbols from binary.
-      --rainbow             Enable rainbow text.", ConsoleColor.DarkCyan);
+                                           
+General Options:                                   
+  -h, --help                               Show this help message and exit. 
+  -v, --version                            Display version information.
+                                                   
+Compiler Options:                                  
+  -o, --output <file>                      Specify the output file name.
+  -w, --word <bits>                        Specify the default word size in bits (default: {Signature.CurrentSignature.WordSize}).
+  -f, --fileless                           Compile and run without writing an output file.
+      --address <bits>                     Force addressing size in bits.
+      --speed-up                           Faster compilation, higher memory usage.
+      --flow-protection                    Prevent return-hijacking via shadow stack.
+                                                   
+Virtual Machine Options:                           
+  -m, --memory <bytes>                     Set virtual machine memory capacity in bytes (default: {VirtualMachineInit.DefaultMemoryCapacity}).
+  -r, --run                                Run program in virtual machine.
+                                                   
+Binary Options:                                    
+  -i, --info                               Display information about the binary and exit.
+                                                   
+Debug/Developer Options:                           
+  -g, --debug                              Include debug symbols in the generated binary.
+      --verbose                            Enable verbose logging.
+      --try-sign                           Attempt to find a signature to an unsigned file.
+      --no-signature                       Do not append the signature/metadata.
+      --read-signature                     Print signature information and exit.
+      --ignore-signature                   Ignore binary signature when loading.
+      --read-debug                         Display debug symbols from binary.
+      --debug-monitor <label/address>      Print the last state of a byte by label or address.
+      --debug-exit-code <code>             Exit virtual machine on code.
+      --rainbow                            Enable rainbow text.", ConsoleColor.DarkCyan);
         }
 
         public static void PrintTodo() => Text.PrintTodo();

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -10,9 +11,8 @@ namespace OneInsArch
         where TSigned : unmanaged, INumber<TSigned>
         where TAddress : unmanaged, INumber<TAddress>
     {
-#pragma warning disable IDE0052
         private readonly bool DisableInterrupts = disableInterrupts;
-#pragma warning restore IDE0052
+        private int? DebugExitCode = null;
         public sbyte[] Memory = new sbyte[memoryCapacity];
         private bool StopRequested;
 
@@ -86,6 +86,8 @@ namespace OneInsArch
                 if (condition)
                 {
                     ip = int.CreateChecked(c);
+                    if (DebugExitCode == ip)
+                        StopRequested = true;
                 }
                 else
                 {
@@ -100,24 +102,31 @@ namespace OneInsArch
             IO.Log(ToString(), null);
         }
 
-        public void LoadImageAndRun(byte[] binary, TimeSpan? timeout = null)
+        public void LoadImageAndRun(
+            byte[] binary,
+            TimeSpan? timeout = null,
+            long[]? monitorBytes = null,
+            int? debugExitCode = null)
         {
+            DebugExitCode = debugExitCode;
+            
             LoadImage(binary);
 
             if (timeout == null)
             {
                 CallRun();
-                return;
             }
-
-            Task vmTask = Task.Run(CallRun);
-
-            if (!vmTask.Wait(timeout.Value))
+            else if (!Task.Run(CallRun).Wait(timeout.Value))
             {
                 StopRequested = true;
                 throw new TimeoutException(
                     $"Virtual machine timed out after {timeout.Value.TotalSeconds:F1}s");
             }
+
+            if (monitorBytes == null) return;
+            
+            foreach (long i in monitorBytes)
+                IO.Print($"State of byte {i} is {Memory[i]}.");
         }
     }
 }

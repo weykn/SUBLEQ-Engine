@@ -2,9 +2,44 @@
 
 **SUBLEQ Engine** is a SUBLEQ compiler and virtual machine with a higher-level ISA that compiles down to pure SUBLEQ. It allows structured programming on top of a one-instruction architecture.
 
----
+## Usage
 
-# ISA Status
+```
+Usage: subleq [options] <input file>
+                                           
+General Options:                                   
+  -h, --help                               Show this help message and exit. 
+  -v, --version                            Display version information.
+                                                   
+Compiler Options:                                  
+  -o, --output <file>                      Specify the output file name.
+  -w, --word <bits>                        Specify the default word size in bits (default: 8).
+  -f, --fileless                           Compile and run without writing an output file.
+      --address <bits>                     Force addressing size in bits.
+      --speed-up                           Faster compilation, higher memory usage.
+      --flow-protection                    Prevent return-hijacking via shadow stack.
+                                                   
+Virtual Machine Options:                           
+  -m, --memory <bytes>                     Set virtual machine memory capacity in bytes (default: 1024).
+  -r, --run                                Run program in virtual machine.
+                                                   
+Binary Options:                                    
+  -i, --info                               Display information about the binary and exit.
+                                                   
+Debug/Developer Options:                           
+  -g, --debug                              Include debug symbols in the generated binary.
+      --verbose                            Enable verbose logging.
+      --try-sign                           Attempt to find a signature to an unsigned file.
+      --no-signature                       Do not append the signature/metadata.
+      --read-signature                     Print signature information and exit.
+      --ignore-signature                   Ignore binary signature when loading.
+      --read-debug                         Display debug symbols from binary.
+      --debug-monitor <label/address>      Print the last state of a byte by label or address.
+      --debug-exit-code <code>             Exit virtual machine on code.
+      --rainbow                            Enable rainbow text.                    
+```
+
+## ISA Status
 
 - [x] Core Primitive
   - [x] subleq
@@ -13,11 +48,11 @@
   - [x] ~~add_r~~
   - [x] ~~add_c~~
   - [x] sub
+  - [X] inc
+  - [X] dec
   - [ ] mul
   - [ ] div
   - [ ] mod
-  - [ ] inc
-  - [ ] dec
   - [ ] neg
   - [ ] abs
 - [x] Data Definitions

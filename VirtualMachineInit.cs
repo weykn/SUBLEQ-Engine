@@ -17,13 +17,18 @@ namespace OneInsArch
             byte[] binaryImage,
             int memoryCapacity,
             bool disableInterrupts = false,
-            TimeSpan? timeout = null)
+            TimeSpan? timeout = null,
+            long? monitorByte = null,
+            int? debugExitCode = null)
         {
+            long[]? monitorBytes = monitorByte == null ? [] : [(long)monitorByte];
             IO.Log($"Running binary image with word type {wordType.Name} and memory capacity of {memoryCapacity} bytes", null);
             Type genericVmType = typeof(VirtualMachine<,>).MakeGenericType(wordType, addressType);
             object vmInstance = Activator.CreateInstance(genericVmType, [memoryCapacity, disableInterrupts])!;
             MethodInfo loadImageAndRunMethod = genericVmType.GetMethod("LoadImageAndRun")!;
-            loadImageAndRunMethod.Invoke(vmInstance, [binaryImage, timeout]);
+            loadImageAndRunMethod.Invoke(
+                vmInstance,
+                [binaryImage, timeout, monitorBytes, debugExitCode]);
             return vmInstance;
         }
     }
