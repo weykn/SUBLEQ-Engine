@@ -1,6 +1,6 @@
 # SUBLEQ Engine
 
-**SUBLEQ Engine** is a SUBLEQ compiler and virtual machine with a higher-level ISA that compiles down to pure SUBLEQ. It allows structured programming on top of a one-instruction architecture.
+**SUBLEQ Engine** is a SUBLEQ compiler and virtual machine that layers a higher-level ISA on top of the one-instruction architecture, letting you write structured programs that compile down to pure SUBLEQ. It supports 8-, 16-, 32-, 64-, and 128-bit word sizes.
 
 ## Usage
 
