@@ -18,9 +18,9 @@ namespace OneInsArch
         public string Name { get; } = name;
         public long Offset { get; } = offset;
         public bool IsLiteral { get; } = isLiteral;
+        public bool IsRegister { get; }
         public string? Value { get; } = value;
         public List<long> UsedAt { get; set; } = usedAt?.ToList() ?? [];
-
         public override string ToString()
             => JsonSerializer.Serialize(this);
     }

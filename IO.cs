@@ -83,10 +83,10 @@ Compiler Options:
   -o, --output <file>                      Specify the output file name.
   -w, --word <bits>                        Specify the default word size in bits (default: {Signature.CurrentSignature.WordSize}).
   -f, --fileless                           Compile and run without writing an output file.
+      --entry <label>                      Set the starting label for execution.
       --address <bits>                     Force addressing size in bits.
-      --speed-up                           Faster compilation, higher memory usage.
       --flow-protection                    Prevent return-hijacking via shadow stack.
-                                                   
+
 Virtual Machine Options:                           
   -m, --memory <bytes>                     Set virtual machine memory capacity in bytes (default: {VirtualMachineInit.DefaultMemoryCapacity}).
   -r, --run                                Run program in virtual machine.
@@ -104,6 +104,7 @@ Debug/Developer Options:
       --read-debug                         Display debug symbols from binary.
       --debug-monitor <label/address>      Print the last state of a byte by label or address.
       --debug-exit-code <code>             Exit virtual machine on code.
+      --experimental-print                 Enable experimental terminal output optimizations.
       --rainbow                            Enable rainbow text.", ConsoleColor.DarkCyan);
         }
 

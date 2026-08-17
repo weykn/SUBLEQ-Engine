@@ -23,6 +23,7 @@ namespace OneInsArch
 
             string output = null!;
             string input = null!;
+            string? entryPoint = null;
             string? monitorLabel = null;
             bool fileless = false;
             bool runAfter = false;
@@ -63,9 +64,9 @@ namespace OneInsArch
                     case "--verbose":
                         IO.Debug = true;
                         break;
+                    case "--experimental-print":
                     case "--speed-up":
                         IO.InactivePrint = true;
-                        IO.Print("The speed-up feature isn't fully available yet.");
                         break;
                     case "--fileless":
                     case "-f":
@@ -97,6 +98,10 @@ namespace OneInsArch
                             $"Build  Version {Signature.CurrentSignature.BuildVersion}\n" +
                             $"Format Version {Signature.CurrentSignature.FormatVersion}");
                         IO.Exit();
+                        break;
+                    case "--entry":
+                        if (i + 1 < args.Length) entryPoint = args[++i];
+                        else IO.ArgumentError($"Missing argument after \"{arg}\".");
                         break;
                     case "--output":
                     case "-o":
@@ -347,7 +352,7 @@ namespace OneInsArch
             MethodInfo compileMethod = genericCompilerType.GetMethod("Compile")!;
             byte[] binaryImage = (byte[])compileMethod.Invoke(
                 compilerInstance,
-                [text, emitDebugInfo])!;
+                [text, emitDebugInfo, entryPoint])!;
 
             if (!fileless)
                 File.WriteAllBytes(output, binaryImage);

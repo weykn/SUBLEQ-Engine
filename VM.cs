@@ -86,8 +86,9 @@ namespace OneInsArch
                 if (condition)
                 {
                     ip = int.CreateChecked(c);
-                    if (DebugExitCode == ip)
-                        StopRequested = true;
+                    if (DebugExitCode != ip) continue;
+                    IO.Log("Debug exit code triggered.", null);
+                    StopRequested = true;
                 }
                 else
                 {

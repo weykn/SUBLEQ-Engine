@@ -36,11 +36,21 @@ namespace OneInsArch
             return bytes;
         }
 
-        public byte[] Compile(string text, bool emitDebugInfo)
+        public byte[] Compile(
+            string text,
+            bool emitDebugInfo,
+            string? entryPoint)
         {
             IO.Log($"DEFAULT WORD SIZE IS {SignedSize * 8} BITS ({typeof(TSigned).Name})", null);
 
-            text += "\n$:\n@:\n$t: dws 0\n$e: dws 0\n$r: dws 0\n$ret: das 0\n";
+            text = $@"
+                {(entryPoint == null ? string.Empty : $"jmp {entryPoint}")}
+                {text}
+                $:
+                @:
+                $t: dws 0
+                $e: dws 0
+            ";
 
             List<sbyte> image = [];
             int bytesPlaced = 0;
@@ -107,6 +117,7 @@ namespace OneInsArch
                         string name = labelMatch.Groups[1].Value;
                         string value = labelMatch.Groups[2].Value.TrimStart();
                         bool isLiteral = value.StartsWith("EQU", StringComparison.OrdinalIgnoreCase);
+                        bool isRegister = value.StartsWith("REGISTER", StringComparison.OrdinalIgnoreCase);
                         Label newLabel = new(
                             name,
                             bytesPlaced,
@@ -149,6 +160,9 @@ namespace OneInsArch
                             break;
                         case var s when Helper.StartsWith(s, "das"): // address-sized
                             Define<TAddress>(s);
+                            break;
+                        case var s when Helper.StartsWith(s, "register"):
+                            Define<TSigned>(s);
                             break;
                         case var s when Helper.StartsWith(s, "equ"):
                             IO.Log("SKIPPING EQU", lineIndex);
